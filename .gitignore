@@ -6,4 +6,4 @@ packages/hardhat/node_modules/
 packages/react-app/node_modules/
 packages/react-app/src/contracts/
 packages/subgraph/node_modules/
- packages/subgraph/config/
+packages/subgraph/config/
