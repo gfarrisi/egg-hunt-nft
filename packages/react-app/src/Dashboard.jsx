@@ -291,19 +291,7 @@ function App(props) {
 
         <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
-            <Link onClick={()=>{setRoute("/")}} to="/">YourCollectibles</Link>
-          </Menu.Item>
-          <Menu.Item key="/transfers">
-            <Link onClick={()=>{setRoute("/transfers")}} to="/transfers">Transfers</Link>
-          </Menu.Item>
-          <Menu.Item key="/ipfsup">
-            <Link onClick={()=>{setRoute("/ipfsup")}} to="/ipfsup">IPFS Upload</Link>
-          </Menu.Item>
-          <Menu.Item key="/ipfsdown">
-            <Link onClick={()=>{setRoute("/ipfsdown")}} to="/ipfsdown">IPFS Download</Link>
-          </Menu.Item>
-          <Menu.Item key="/debugcontracts">
-            <Link onClick={()=>{setRoute("/debugcontracts")}} to="/debugcontracts">Debug Contracts</Link>
+            <Link onClick={()=>{setRoute("/")}} to="/">NFT Dashboard</Link>
           </Menu.Item>
         </Menu>
 
@@ -363,103 +351,6 @@ function App(props) {
               />
             </div>
 
-          </Route>
-
-          <Route path="/transfers">
-            <div style={{ width:600, margin: "auto", marginTop:32, paddingBottom:32 }}>
-              <List
-                bordered
-                dataSource={transferEvents}
-                renderItem={(item) => {
-                  return (
-                    <List.Item key={item[0]+"_"+item[1]+"_"+item.blockNumber+"_"+item[2].toNumber()}>
-                      <span style={{fontSize:16, marginRight:8}}>#{item[2].toNumber()}</span>
-                      <Address
-                          address={item[0]}
-                          ensProvider={mainnetProvider}
-                          fontSize={16}
-                      /> 
-                      <Address
-                          address={item[1]}
-                          ensProvider={mainnetProvider}
-                          fontSize={16}
-                      />
-                    </List.Item>
-                  )
-                }}
-              />
-            </div>
-          </Route>
-
-          <Route path="/ipfsup">
-            <div style={{ paddingTop:32, width:740, margin:"auto", textAlign:"left" }}>
-              <ReactJson
-                style={{ padding:8 }}
-                src={yourJSON}
-                theme={"pop"}
-                enableClipboard={false}
-                onEdit={(edit,a)=>{
-                  setYourJSON(edit.updated_src)
-                }}
-                onAdd={(add,a)=>{
-                  setYourJSON(add.updated_src)
-                }}
-                onDelete={(del,a)=>{
-                  setYourJSON(del.updated_src)
-                }}
-              />
-            </div>
-
-            <Button style={{margin:8}} loading={sending} size="large" shape="round" type="primary" onClick={async()=>{
-                console.log("UPLOADING...",yourJSON)
-                setSending(true)
-                setIpfsHash()
-                const result = await ipfs.add(JSON.stringify(yourJSON))//addToIPFS(JSON.stringify(yourJSON))
-                if(result && result.path) {
-                  setIpfsHash(result.path)
-                }
-                setSending(false)
-                console.log("RESULT:",result)
-            }}>Upload to IPFS</Button>
-
-            <div  style={{padding:16,paddingBottom:150}}>
-              {ipfsHash}
-            </div>
-
-          </Route>
-          <Route path="/ipfsdown">
-              <div style={{ paddingTop:32, width:740, margin:"auto" }}>
-                <Input
-                  value={ipfsDownHash}
-                  placeHolder={"IPFS hash (like QmadqNw8zkdrrwdtPFK1pLi8PPxmkQ4pDJXY8ozHtz6tZq)"}
-                  onChange={(e)=>{
-                    setIpfsDownHash(e.target.value)
-                  }}
-                />
-              </div>
-              <Button style={{margin:8}} loading={sending} size="large" shape="round" type="primary" onClick={async()=>{
-                  console.log("DOWNLOADING...",ipfsDownHash)
-                  setDownloading(true)
-                  setIpfsContent()
-                  const result = await getFromIPFS(ipfsDownHash)//addToIPFS(JSON.stringify(yourJSON))
-                  if(result && result.toString) {
-                    setIpfsContent(result.toString())
-                  }
-                  setDownloading(false)
-              }}>Download from IPFS</Button>
-
-              <pre  style={{padding:16, width:500, margin:"auto",paddingBottom:150}}>
-                {ipfsContent}
-              </pre>
-          </Route>
-          <Route path="/debugcontracts">
-              <Contract
-                name="YourCollectible"
-                signer={userProvider.getSigner()}
-                provider={localProvider}
-                address={address}
-                blockExplorer={blockExplorer}
-              />
           </Route>
         </Switch>
       </BrowserRouter>
