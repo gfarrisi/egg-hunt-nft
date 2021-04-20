@@ -100,3 +100,25 @@ export const NETWORKS = {
         blockExplorer: "https://mumbai-explorer.matic.today/",
     }
 }
+
+
+export const BUFFALO = {
+    "description": "It's actually a bison?",
+    "external_url": "https://austingriffith.com/portfolio/paintings/",// <-- this can link to a page for the specific file too
+    "image": "https://austingriffith.com/images/paintings/buffalo.jpg",
+    "name": "Buffalo",
+    "attributes": [
+       {
+         "trait_type": "BackgroundColor",
+         "value": "green"
+       },
+       {
+         "trait_type": "Eyes",
+         "value": "googly"
+       },
+       {
+         "trait_type": "Stamina",
+         "value": 42
+       }
+    ]
+  }

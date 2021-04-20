@@ -14,7 +14,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
-import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS } from "./constants";
+import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, BUFFALO } from "./constants";
 import ReactJson from 'react-json-view'
 const { BufferList } = require('bl')
 // https://www.npmjs.com/package/ipfs-http-client
@@ -168,6 +168,13 @@ function App(props) {
   console.log("📟 Transfer events:",transferEvents)
 
 
+  const uploadAndMint = async () => {
+    console.log("Uploading buffalo...")
+    const uploaded = await ipfs.add(JSON.stringify(BUFFALO))
+    console.log("Minting buffalo with IPFS hash ("+uploaded.path+")")
+    await readContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000})
+  }
+
 
   //
   // 🧠 This effect will update yourCollectibles by polling when your balance changes
@@ -305,8 +312,11 @@ function App(props) {
 
             <div style={{ width:640, margin: "auto", marginTop:32, paddingBottom:32 }}>
 
-              <Button type="primary" style={{marginBottom:32 }}>Generate New NFTs</Button>
-
+              <Button type="primary" style={{marginBottom:32 }} onClick={()=>{
+                uploadAndMint()
+              }}>
+                Generate New NFT
+                </Button>
               <List
                 bordered
                 dataSource={yourCollectibles}
@@ -437,6 +447,9 @@ const web3Modal = new Web3Modal({
     },
   },
 });
+
+
+
 
 const logoutOfWeb3Modal = async () => {
   await web3Modal.clearCachedProvider();
