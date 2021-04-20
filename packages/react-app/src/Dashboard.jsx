@@ -291,7 +291,7 @@ function App(props) {
 
         <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
-            <Link onClick={()=>{setRoute("/")}} to="/">NFT Dashboard</Link>
+            <Link onClick={()=>{setRoute("/")}} to="/">Dashboard</Link>
           </Menu.Item>
         </Menu>
 
@@ -304,6 +304,9 @@ function App(props) {
             */}
 
             <div style={{ width:640, margin: "auto", marginTop:32, paddingBottom:32 }}>
+
+              <Button type="primary" style={{marginBottom:32 }}>Generate New NFTs</Button>
+
               <List
                 bordered
                 dataSource={yourCollectibles}
