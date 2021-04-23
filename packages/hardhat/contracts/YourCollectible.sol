@@ -19,15 +19,13 @@ contract YourCollectible is ERC721, AccessControl {
   constructor(address admin) public ERC721("YourCollectible", "YCB") {
     _setBaseURI("https://ipfs.io/ipfs/");
     _setupRole(ADMIN_ROLE, admin);
-
   }
 
   function mintItem(address to, string memory tokenURI)
       public
       returns (uint256)
   {
-      //require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not the admin");
-
+      require(hasRole(ADMIN_ROLE, msg.sender), "Caller is not the admin");
       _tokenIds.increment();
 
       uint256 id = _tokenIds.current();
