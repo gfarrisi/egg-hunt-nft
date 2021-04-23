@@ -163,6 +163,9 @@ function App(props) {
   const balance = useContractReader(readContracts,"YourCollectible", "balanceOf", [ address ])
   console.log("🤗 balance:",balance)
 
+  const add = useContractReader(readContracts, "YourCollectible", "address", [address] )
+  console.log("🤗 contractAddress:",add)
+
   //📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:",transferEvents)
@@ -172,7 +175,7 @@ function App(props) {
     console.log("Uploading buffalo...")
     const uploaded = await ipfs.add(JSON.stringify(BUFFALO))
     console.log("Minting buffalo with IPFS hash ("+uploaded.path+")")
-    await readContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000})
+    await tx (writeContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000}) )
   }
 
 
