@@ -163,9 +163,7 @@ function App(props) {
   const balance = useContractReader(readContracts,"YourCollectible", "balanceOf", [ address ])
   console.log("🤗 balance:",balance)
 
-  const add = useContractReader(readContracts, "YourCollectible", "address", [address] )
-  console.log("🤗 contractAddress:",add)
-
+  
   //📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:",transferEvents)
