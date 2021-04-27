@@ -3,7 +3,7 @@ import { BrowserRouter, Switch, Route, Link } from "react-router-dom";
 import "antd/dist/antd.css";
 import {  JsonRpcProvider, Web3Provider } from "@ethersproject/providers";
 import "./App.css";
-import { Row, Col, Button, Menu, Alert, Input, List, Card, Switch as SwitchD } from "antd";
+import { Row, Col, Button, Menu, Alert, Input, List, Card, Switch as SwitchD, Descriptions } from "antd";
 import Web3Modal from "web3modal";
 import WalletConnectProvider from "@walletconnect/web3-provider";
 import { useUserAddress } from "eth-hooks";
@@ -68,13 +68,13 @@ const STARTING_JSON = {
 // you usually go content.toString() after this...
 const getFromIPFS = async hashToGet => {
   for await (const file of ipfs.get(hashToGet)) {
-    console.log(file.path)
+    console.log("Logging path", file.path)
     if (!file.content) continue;
     const content = new BufferList()
     for await (const chunk of file.content) {
       content.append(chunk)
     }
-    console.log(content)
+    console.log("Logging Content", content)
     return content
   }
 }
@@ -163,6 +163,7 @@ function App(props) {
   const balance = useContractReader(readContracts,"YourCollectible", "balanceOf", [ address ])
   console.log("🤗 balance:",balance)
 
+  
   //📟 Listen for broadcast events
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:",transferEvents)
@@ -171,8 +172,8 @@ function App(props) {
   const uploadAndMint = async () => {
     console.log("Uploading buffalo...")
     const uploaded = await ipfs.add(JSON.stringify(BUFFALO))
-    console.log("Minting buffalo with IPFS hash ("+uploaded.path+")")
-    await readContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000})
+    console.log("------Minting buffalo with IPFS hash ("+uploaded.path+")")
+    await tx (writeContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000}))
   }
 
 
@@ -310,7 +311,7 @@ function App(props) {
                 and give you a form to interact with it locally
             */}
 
-            <div style={{ width:640, margin: "auto", marginTop:32, paddingBottom:32 }}>
+            <div style={{ width:800, margin: "auto", marginTop:32, paddingBottom:32 }}>
 
               <Button type="primary" style={{marginBottom:32 }} onClick={()=>{
                 uploadAndMint()
@@ -333,6 +334,19 @@ function App(props) {
                       <div><img src={item.image} style={{maxWidth:150}} /></div>
                       <div>{item.description}</div>
                       </Card>
+
+                      <div>
+                        <List
+                          dataSource={item.attributes}
+                          renderItem={(attribute) => {
+                            return (
+                              <List.Item key={attribute.trait_type}>
+                                <div>{attribute.trait_type}: {attribute.value}</div>
+                              </List.Item>
+                            )
+                          }}
+                        />
+                      </div>
 
                       <div>
                         owner: <Address
