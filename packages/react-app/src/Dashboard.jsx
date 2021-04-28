@@ -16,6 +16,7 @@ import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, BUFFALO } from "./constants";
 import ReactJson from 'react-json-view'
+import { ReactSVG } from 'react-svg'
 const { BufferList } = require('bl')
 // https://www.npmjs.com/package/ipfs-http-client
 const ipfsAPI = require('ipfs-http-client');
@@ -331,7 +332,17 @@ function App(props) {
                           <span style={{fontSize:16, marginRight:8}}>#{id}</span> {item.name}
                         </div>
                       )}>
-                      <div><img src={item.image} style={{maxWidth:150}} /></div>
+                      <div>
+                        <ReactSVG
+                          beforeInjection={(svg) => {
+                            const [gElement] = [...svg.querySelectorAll('g')]
+                            //Color is set here - will need to replace hardcoded hex value with value from color attribute within item.attributes
+                            gElement.setAttribute('fill', '#3342FF')
+                          }}
+                          src="sunglasses.svg"
+                          style={{maxWidth:150}}
+                        />
+                      </div>
                       <div>{item.description}</div>
                       </Card>
 
