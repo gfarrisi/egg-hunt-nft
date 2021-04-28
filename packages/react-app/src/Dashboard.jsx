@@ -14,7 +14,7 @@ import { formatEther, parseEther } from "@ethersproject/units";
 //import Hints from "./Hints";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
-import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, BUFFALO } from "./constants";
+import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, SUNGLASSES } from "./constants";
 import ReactJson from 'react-json-view'
 import { ReactSVG } from 'react-svg'
 const { BufferList } = require('bl')
@@ -171,9 +171,9 @@ function App(props) {
 
 
   const uploadAndMint = async () => {
-    console.log("Uploading buffalo...")
-    const uploaded = await ipfs.add(JSON.stringify(BUFFALO))
-    console.log("------Minting buffalo with IPFS hash ("+uploaded.path+")")
+    console.log("Uploading sunglasses...")
+    const uploaded = await ipfs.add(JSON.stringify(SUNGLASSES))
+    console.log("Minting sunglasses with IPFS hash ("+uploaded.path+")")
     await tx (writeContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000}))
   }
 
@@ -336,8 +336,12 @@ function App(props) {
                         <ReactSVG
                           beforeInjection={(svg) => {
                             const [gElement] = [...svg.querySelectorAll('g')]
-                            //Color is set here - will need to replace hardcoded hex value with value from color attribute within item.attributes
-                            gElement.setAttribute('fill', '#3342FF')
+                            for (var i=0; i < item.attributes.length; i++) {
+                              if (item.attributes[i].trait_type == "Color") {
+                                var color = item.attributes[i].value
+                              }
+                            }
+                            gElement.setAttribute('fill', color)
                           }}
                           src="sunglasses.svg"
                           style={{maxWidth:150}}
