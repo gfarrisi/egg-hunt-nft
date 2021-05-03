@@ -172,6 +172,13 @@ function App(props) {
 
   const uploadAndMint = async () => {
     console.log("Uploading sunglasses...")
+    const randomColor = Math.floor(Math.random()*16777215).toString(16);
+    for (var i=0; i < SUNGLASSES.attributes.length; i++) {
+      if (SUNGLASSES.attributes[i].trait_type == "Color") {
+        SUNGLASSES.attributes[i].value = "#" + randomColor
+      }
+    }
+    console.log("SUNGLASSES OBJ IS ", SUNGLASSES)
     const uploaded = await ipfs.add(JSON.stringify(SUNGLASSES))
     console.log("Minting sunglasses with IPFS hash ("+uploaded.path+")")
     await tx (writeContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000}))
