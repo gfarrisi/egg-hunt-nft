@@ -17,6 +17,7 @@ import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, SUNGLASSES } from "./constants";
 import ReactJson from 'react-json-view'
 import { ReactSVG } from 'react-svg'
+const Hash = require('ipfs-only-hash')
 const { BufferList } = require('bl')
 // https://www.npmjs.com/package/ipfs-http-client
 const ipfsAPI = require('ipfs-http-client');
@@ -169,19 +170,52 @@ function App(props) {
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:",transferEvents)
 
+  function generateEgg(randomEgg, description, randomColor, rarity){
+    return {
+      "name": randomEgg,
+      "description": description + randomEgg,
+      "image": randomEgg + ".svg",
+      "attributes": [
+        {
+          "trait_type": "Color",
+          "value": "#"+ randomColor
+        },
+        {
+          "trait_type": "Rarity",
+          "value": rarity
+        }
+     ]
+
+    }
+  }
 
   const uploadAndMint = async () => {
     console.log("Uploading sunglasses...")
+    const eggArray = ["sunglasses", "hat"];
+    const rarityArray = ["Common","Uncommon","Rare","Super Rare", "Epic"];
+    const descriptionArray = ["Totally amazing ","Fantastic find ","Super cool ","The awesome ", "Incredible gem "];
+
+    const randomEgg = eggArray[Math.floor(Math.random() * eggArray.length)];
     const randomColor = Math.floor(Math.random()*16777215).toString(16);
-    for (var i=0; i < SUNGLASSES.attributes.length; i++) {
-      if (SUNGLASSES.attributes[i].trait_type == "Color") {
-        SUNGLASSES.attributes[i].value = "#" + randomColor
-      }
+    const rarity = rarityArray[Math.floor(Math.random() * rarityArray.length)];
+    const description = descriptionArray[Math.floor(Math.random() * descriptionArray.length)];
+    
+    
+    const egg = generateEgg(randomEgg, description, randomColor, rarity);
+
+    console.log("SUNGLASSES OBJ IS ", egg)
+    const onlyHash = await Hash.of(egg)
+    console.log("onlyHash", onlyHash)
+    const inIPFS = await getFromIPFS(onlyHash);
+    console.log("inIPFS", inIPFS)
+    if(!inIPFS){
+      const uploaded = await ipfs.add(JSON.stringify(egg))
+      console.log("Minting sunglasses with IPFS hash ("+uploaded.path+")")
+      await tx (writeContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000}))
     }
-    console.log("SUNGLASSES OBJ IS ", SUNGLASSES)
-    const uploaded = await ipfs.add(JSON.stringify(SUNGLASSES))
-    console.log("Minting sunglasses with IPFS hash ("+uploaded.path+")")
-    await tx (writeContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000}))
+    else{
+      uploadAndMint();
+    }
   }
 
 
@@ -350,7 +384,7 @@ function App(props) {
                             }
                             gElement.setAttribute('fill', color)
                           }}
-                          src="sunglasses.svg"
+                          src={item.image}
                           style={{maxWidth:150}}
                         />
                       </div>
