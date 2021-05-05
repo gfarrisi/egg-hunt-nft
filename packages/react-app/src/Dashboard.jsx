@@ -17,6 +17,7 @@ import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, SUNGLASSES } from "./constants";
 import ReactJson from 'react-json-view'
 import { ReactSVG } from 'react-svg'
+import { ConsoleSqlOutlined } from "@ant-design/icons";
 const Hash = require('ipfs-only-hash')
 const { BufferList } = require('bl')
 // https://www.npmjs.com/package/ipfs-http-client
@@ -189,8 +190,10 @@ function App(props) {
     }
   }
 
+  const existingHashes = []
+
   const uploadAndMint = async () => {
-    console.log("Uploading sunglasses...")
+    console.log("Generating Unique Egg Object...")
     const eggArray = ["sunglasses", "hat"];
     const rarityArray = ["Common","Uncommon","Rare","Super Rare", "Epic"];
     const descriptionArray = ["Totally amazing ","Fantastic find ","Super cool ","The awesome ", "Incredible gem "];
@@ -203,18 +206,19 @@ function App(props) {
     
     const egg = generateEgg(randomEgg, description, randomColor, rarity);
 
-    console.log("SUNGLASSES OBJ IS ", egg)
-    const onlyHash = await Hash.of(egg)
-    console.log("onlyHash", onlyHash)
-    const inIPFS = await getFromIPFS(onlyHash);
-    console.log("inIPFS", inIPFS)
-    if(!inIPFS){
-      const uploaded = await ipfs.add(JSON.stringify(egg))
-      console.log("Minting sunglasses with IPFS hash ("+uploaded.path+")")
-      await tx (writeContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000}))
-    }
-    else{
+    console.log("EGG OBJ IS ", egg)
+    const onlyHash = await ipfs.add(JSON.stringify(egg), {onlyHash:true})
+    console.log("existing hashes ", existingHashes)
+    var exists = existingHashes.includes(onlyHash.path)
+    if(exists) {
+      console.log("Hash already created; Regenerating new egg")
       uploadAndMint();
+    }
+    else {
+      existingHashes.push(onlyHash.path);
+      const uploaded = await ipfs.add(JSON.stringify(egg))
+      console.log("Minting egg with IPFS hash ("+uploaded.path+")")
+      await tx (writeContracts.YourCollectible.mintItem(address,uploaded.path,{gasLimit:400000}))
     }
   }
 
