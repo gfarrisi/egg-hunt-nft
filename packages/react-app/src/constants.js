@@ -102,23 +102,18 @@ export const NETWORKS = {
 }
 
 
-export const BUFFALO = {
-    "description": "It's actually a bison?",
-    "external_url": "https://austingriffith.com/portfolio/paintings/",// <-- this can link to a page for the specific file too
-    "image": "https://austingriffith.com/images/paintings/buffalo.jpg",
-    "name": "Buffalo",
+export const SUNGLASSES = {
+    "description": "Shiny New Sunglasses",
+    "image": "sunglasses.svg",
+    "name": "Sunglasses",
     "attributes": [
        {
-         "trait_type": "BackgroundColor",
-         "value": "green"
+         "trait_type": "Color",
+         "value": "Red"
        },
        {
-         "trait_type": "Eyes",
-         "value": "googly"
-       },
-       {
-         "trait_type": "Stamina",
-         "value": 42
+         "trait_type": "Rarity",
+         "value": "Common"
        }
     ]
   }

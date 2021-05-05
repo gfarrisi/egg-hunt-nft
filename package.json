@@ -60,5 +60,8 @@
       "**/hardhat",
       "**/hardhat/**"
     ]
+  },
+  "dependencies": {
+    "react-svg": "^13.0.3"
   }
 }
