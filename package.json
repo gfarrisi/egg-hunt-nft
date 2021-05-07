@@ -62,6 +62,7 @@
     ]
   },
   "dependencies": {
+    "ipfs-only-hash": "^4.0.0",
     "react-svg": "^13.0.3"
   }
 }

@@ -103,9 +103,9 @@ export const NETWORKS = {
 
 
 export const SUNGLASSES = {
-    "description": "Shiny New Sunglasses",
+    "name": "sunglasses",
+    "description": "Totally amazing ",
     "image": "sunglasses.svg",
-    "name": "Sunglasses",
     "attributes": [
        {
          "trait_type": "Color",
@@ -116,4 +116,6 @@ export const SUNGLASSES = {
          "value": "Common"
        }
     ]
-  }
+}
+
+
