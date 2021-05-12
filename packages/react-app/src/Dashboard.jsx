@@ -18,7 +18,6 @@ import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, SUNGLASSES } from "./constants";
 import ReactJson from 'react-json-view'
 import { ReactSVG } from 'react-svg'
-import { ConsoleSqlOutlined, UploadOutlined } from "@ant-design/icons";
 import { from } from "apollo-link";
 import ImageMapper from 'react-image-mapper';
 const { BufferList } = require('bl')
@@ -198,10 +197,7 @@ function App(props) {
 
     }
   }
-
   const existingHashes = []
-
-
   const uploadAndMint = async () => {
     console.log("Generating Unique Egg Object...")
     var eggName; 
@@ -1851,8 +1847,6 @@ function App(props) {
       ["FFFFFF", "White"]
     ]
     
-    
-
     const randomColorHex = colorArray[Math.floor(Math.random() * colorArray.length)][0];
     const randomColorName = colorArray[Math.floor(Math.random() * colorArray.length)][1];
     const rarity = rarityArray[Math.floor(Math.random() * rarityArray.length)];
@@ -1912,7 +1906,7 @@ function App(props) {
             const jsonManifest = JSON.parse(jsonManifestBuffer.toString())
             console.log("jsonManifest",jsonManifest)
             collectibleUpdate.push({ id:tokenId, uri:tokenURI, owner: address, ...jsonManifest })
-            eggMarkerUpdate.areas.push({name:jsonManifest.name, shape:"circle", coords: [jsonManifest.xCord, jsonManifest.yCord, 8 ], preFillColor:"red"})
+            eggMarkerUpdate.areas.push({data:jsonManifest, shape:"circle", coords: [jsonManifest.xCord, jsonManifest.yCord, 8 ], preFillColor:"red"})
           }catch(e){console.log(e)}
 
         }catch(e){console.log(e)}
@@ -1996,6 +1990,7 @@ function App(props) {
   const [ transferToAddresses, setTransferToAddresses ] = useState({})
 
   const [visible, setVisible] = useState(false);
+  const [eggModalVisible, setEggModalVisible] = useState(false);
   const [componentSize, setComponentSize] = useState('default');
   const [ eggType, setEggType ] = useState()
   const [ eggBatchSize, setEggBatchSize ] = useState()
@@ -2163,7 +2158,21 @@ function App(props) {
 
           <Route path="/map">
             <div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100vh'}}>
-              <ImageMapper src="parkMap.png" map={eggMarkers} width={1000}/>
+              <ImageMapper src="parkMap.png" map={eggMarkers} width={1000}
+                onClick={area => 
+                  setEggModalVisible(true)
+                }
+              />
+              <Modal
+                title="NFT Details"
+                centered
+                visible={eggModalVisible}
+                footer={null}
+                onCancel={() => setEggModalVisible(false)}
+              >
+              
+
+              </Modal>
             </div>
           </Route>
 
