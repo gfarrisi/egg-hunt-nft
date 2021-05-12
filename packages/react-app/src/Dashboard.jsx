@@ -18,9 +18,9 @@ import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, SUNGLASSES } from "./constants";
 import ReactJson from 'react-json-view'
 import { ReactSVG } from 'react-svg'
-import { UploadOutlined } from "@ant-design/icons";
+import { ConsoleSqlOutlined, UploadOutlined } from "@ant-design/icons";
 import { from } from "apollo-link";
-import { ntc } from "ntc";
+import ImageMapper from 'react-image-mapper';
 const { BufferList } = require('bl')
 // https://www.npmjs.com/package/ipfs-http-client
 const ipfsAPI = require('ipfs-http-client');
@@ -173,20 +173,22 @@ function App(props) {
   const transferEvents = useEventListener(readContracts, "YourCollectible", "Transfer", localProvider, 1);
   console.log("📟 Transfer events:",transferEvents)
 
-  function generateEgg(randomEgg, description, randomColorName, randomColorHex, rarity){
+  function generateEgg(randomEgg, description, randomColorName, randomColorHex, rarity, location, xCord, yCord){
     return {
       "name": randomEgg,
       "description": description + randomEgg,
       "image": randomEgg + ".svg",
       "colorHex": "#" + randomColorHex,
+      "xCord": xCord,
+      "yCord": yCord,
       "attributes": [
         {
           "trait_type": "Color",
           "value": randomColorName
         },
         {
-          "trait_type": "Found at",
-          "value": rarity
+          "trait_type": "Park Location",
+          "value": location
         },
         {
           "trait_type": "Rarity",
@@ -214,6 +216,71 @@ function App(props) {
     }
 
     const rarityArray = ["Common","Uncommon","Rare","Super Rare", "Epic"];
+    const locationArray = [
+      {
+        "name": "Entrance",
+        "xCordMin": 160,
+        "xCordMax": 330,
+        "yCordMin": 450,
+        "yCordMax": 550,
+      },
+      {
+        "name": "Production Central",
+        "xCordMin": 70,
+        "xCordMax": 190,
+        "yCordMin": 220,
+        "yCordMax": 380,
+      },
+      {
+        "name": "New York",
+        "xCordMin": 330,
+        "xCordMax": 470,
+        "yCordMin": 150,
+        "yCordMax": 250,
+      },
+      {
+        "name": "San Francisco",
+        "xCordMin": 520,
+        "xCordMax": 650,
+        "yCordMin": 120,
+        "yCordMax": 200,
+      },
+      {
+        "name": "Diagon Alley",
+        "xCordMin": 720,
+        "xCordMax": 850,
+        "yCordMin": 60,
+        "yCordMax": 140,
+      },
+      {
+        "name": "World Expo",
+        "xCordMin": 870,
+        "xCordMax": 930,
+        "yCordMin": 200,
+        "yCordMax": 270,
+      },
+      {
+        "name": "Springfield",
+        "xCordMin": 630,
+        "xCordMax": 800,
+        "yCordMin": 300,
+        "yCordMax": 350,
+      },
+      {
+        "name": "Kidzone",
+        "xCordMin": 630,
+        "xCordMax": 800,
+        "yCordMin": 390,
+        "yCordMax": 420,
+      },
+      {
+        "name": "Hollywood",
+        "xCordMin": 270,
+        "xCordMax": 450,
+        "yCordMin": 360,
+        "yCordMax": 430,
+      },
+      ]
     const descriptionArray = ["Totally amazing ","Fantastic find ","Super cool ","The awesome ", "Incredible gem "];
     const colorArray = [
       ["000000", "Black"],
@@ -1784,12 +1851,18 @@ function App(props) {
       ["FFFFFF", "White"]
     ]
     
+    
+
     const randomColorHex = colorArray[Math.floor(Math.random() * colorArray.length)][0];
     const randomColorName = colorArray[Math.floor(Math.random() * colorArray.length)][1];
     const rarity = rarityArray[Math.floor(Math.random() * rarityArray.length)];
+    const locationArrayIndex = Math.floor(Math.random() * locationArray.length)
+    const location = locationArray[locationArrayIndex].name;
+    const xCord = Math.floor(Math.random() * (locationArray[locationArrayIndex].xCordMax - locationArray[locationArrayIndex].xCordMin)) + locationArray[locationArrayIndex].xCordMin;
+    const yCord = Math.floor(Math.random() * (locationArray[locationArrayIndex].yCordMax - locationArray[locationArrayIndex].yCordMin)) + locationArray[locationArrayIndex].yCordMin;
     const description = descriptionArray[Math.floor(Math.random() * descriptionArray.length)];
     
-    const egg = generateEgg(eggName, description, randomColorName, randomColorHex, rarity);
+    const egg = generateEgg(eggName, description, randomColorName, randomColorHex, rarity, location, xCord, yCord);
     console.log(">>>>egg colorhex: ", egg.colorHex)
     console.log("EGG OBJ IS ", egg)
     const onlyHash = await ipfs.add(JSON.stringify(egg), {onlyHash:true})
@@ -1813,10 +1886,15 @@ function App(props) {
   //
   const yourBalance = balance && balance.toNumber && balance.toNumber()
   const [ yourCollectibles, setYourCollectibles ] = useState()
+  const [eggMarkers, setEggMarkers ] = useState()
 
   useEffect(()=>{
     const updateYourCollectibles = async () => {
       let collectibleUpdate = []
+      let eggMarkerUpdate = {
+        name: "eggMarkers",
+        areas: []
+      }
       for(let tokenIndex=0;tokenIndex<balance;tokenIndex++){
         try{
           console.log("GEtting token index",tokenIndex)
@@ -1834,27 +1912,17 @@ function App(props) {
             const jsonManifest = JSON.parse(jsonManifestBuffer.toString())
             console.log("jsonManifest",jsonManifest)
             collectibleUpdate.push({ id:tokenId, uri:tokenURI, owner: address, ...jsonManifest })
+            eggMarkerUpdate.areas.push({name:jsonManifest.name, shape:"circle", coords: [jsonManifest.xCord, jsonManifest.yCord, 8 ], preFillColor:"red"})
           }catch(e){console.log(e)}
 
         }catch(e){console.log(e)}
       }
       setYourCollectibles(collectibleUpdate)
+      setEggMarkers(eggMarkerUpdate)
     }
     updateYourCollectibles()
-    // const script = document.createElement('script');
 
-    // script.src = "https://chir.ag/projects/ntc/ntc.js";
-    // script.async = true;
-
-    // document.body.appendChild(script);
-    
   },[ address, yourBalance ])
-
-  /*
-  const addressFromENS = useResolveName(mainnetProvider, "austingriffith.eth");
-  console.log("🏷 Resolved austingriffith.eth as:",addressFromENS)
-  */
-
 
   let networkDisplay = ""
   if(localChainId && selectedChainId && localChainId != selectedChainId ){
@@ -1955,6 +2023,9 @@ function App(props) {
         <Menu style={{ textAlign:"center" }} selectedKeys={[route]} mode="horizontal">
           <Menu.Item key="/">
             <Link onClick={()=>{setRoute("/")}} to="/">Dashboard</Link>
+          </Menu.Item>
+          <Menu.Item key="/map">
+            <Link onClick={()=>{setRoute("/map")}} to="/map">Egg Map</Link>
           </Menu.Item>
         </Menu>
 
@@ -2089,6 +2160,13 @@ function App(props) {
             </div>
 
           </Route>
+
+          <Route path="/map">
+            <div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100vh'}}>
+              <ImageMapper src="parkMap.png" map={eggMarkers} width={1000}/>
+            </div>
+          </Route>
+
         </Switch>
       </BrowserRouter>
 
@@ -2110,46 +2188,6 @@ function App(props) {
          />
          {faucetHint}
       </div>
-
-      {/* 🗺 Extra UI like gas price, eth price, faucet, and support: */}
-       <div style={{ position: "fixed", textAlign: "left", left: 0, bottom: 20, padding: 10 }}>
-         <Row align="middle" gutter={[4, 4]}>
-           <Col span={8}>
-             <Ramp price={price} address={address} networks={NETWORKS}/>
-           </Col>
-
-           <Col span={8} style={{ textAlign: "center", opacity: 0.8 }}>
-             <GasGauge gasPrice={gasPrice} />
-           </Col>
-           <Col span={8} style={{ textAlign: "center", opacity: 1 }}>
-             <Button
-               onClick={() => {
-                 window.open("https://t.me/joinchat/KByvmRe5wkR-8F_zz6AjpA");
-               }}
-               size="large"
-               shape="round"
-             >
-               <span style={{ marginRight: 8 }} role="img" aria-label="support">
-                 💬
-               </span>
-               Support
-             </Button>
-           </Col>
-         </Row>
-
-         <Row align="middle" gutter={[4, 4]}>
-           <Col span={24}>
-             {
-               /*  if the local provider has a signer, let's show the faucet:  */
-               faucetAvailable ? (
-                 <Faucet localProvider={localProvider} price={price} ensProvider={mainnetProvider}/>
-               ) : (
-                 ""
-               )
-             }
-           </Col>
-         </Row>
-       </div>
 
     </div>
   );
