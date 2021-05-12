@@ -16,7 +16,6 @@ import { formatEther, parseEther } from "@ethersproject/units";
 import { Hints, ExampleUI, Subgraph } from "./views"
 import { useThemeSwitcher } from "react-css-theme-switcher";
 import { INFURA_ID, DAI_ADDRESS, DAI_ABI, NETWORK, NETWORKS, SUNGLASSES } from "./constants";
-import ReactJson from 'react-json-view'
 import { ReactSVG } from 'react-svg'
 import { from } from "apollo-link";
 import ImageMapper from 'react-image-mapper';
@@ -1881,7 +1880,6 @@ function App(props) {
   const yourBalance = balance && balance.toNumber && balance.toNumber()
   const [ yourCollectibles, setYourCollectibles ] = useState()
   const [eggMarkers, setEggMarkers ] = useState()
-
   useEffect(()=>{
     const updateYourCollectibles = async () => {
       let collectibleUpdate = []
@@ -1957,6 +1955,16 @@ function App(props) {
   useEffect(() => {
     setRoute(window.location.pathname)
   }, [setRoute]);
+
+  const [eggData, setEggData] = useState({
+    "name": "",
+    "description": "",
+    "image": "",
+    "colorHex": "",
+    "xCord": "",
+    "yCord": "",
+    "attributes": []
+  });
 
   let faucetHint = ""
   const faucetAvailable = localProvider && localProvider.connection && localProvider.connection.url && localProvider.connection.url.indexOf(window.location.hostname)>=0 && !process.env.REACT_APP_PROVIDER && price > 1;
@@ -2159,9 +2167,11 @@ function App(props) {
           <Route path="/map">
             <div style={{display: 'flex',  justifyContent:'center', alignItems:'center', height: '100vh'}}>
               <ImageMapper src="parkMap.png" map={eggMarkers} width={1000}
-                onClick={area => 
+                onClick={(area) => {
+                  setEggData(area.data)
                   setEggModalVisible(true)
-                }
+                  console.log("eggData is ", eggData)
+                }}
               />
               <Modal
                 title="NFT Details"
@@ -2170,11 +2180,39 @@ function App(props) {
                 footer={null}
                 onCancel={() => setEggModalVisible(false)}
               >
-              
-
+                <Card title={(
+                  <div>
+                    <span style={{fontSize:16, marginRight:8}}></span> {eggData.name}
+                  </div>
+                )}>
+                  <div>
+                    <ReactSVG
+                      beforeInjection={(svg) => {
+                        const [gElement] = [...svg.querySelectorAll('g')]
+                        gElement.setAttribute('fill', eggData.colorHex)
+                      }}
+                      src={eggData.image}
+                      style={{maxWidth:300}}
+                    />
+                  </div>
+                  <div>{eggData.description}</div>
+                </Card>
+                <div>
+                  <List
+                    dataSource={eggData.attributes}
+                    renderItem={(attribute) => {
+                      return (
+                        <List.Item key={attribute.trait_type}>
+                          <div>{attribute.trait_type}: {attribute.value}</div>
+                        </List.Item>
+                      )
+                    }}
+                  />
+                </div>
               </Modal>
             </div>
           </Route>
+
 
         </Switch>
       </BrowserRouter>
