@@ -2178,13 +2178,10 @@ function App(props) {
                 centered
                 visible={eggModalVisible}
                 footer={null}
+                width={400}
                 onCancel={() => setEggModalVisible(false)}
               >
-                <Card title={(
-                  <div>
-                    <span style={{fontSize:16, marginRight:8}}></span> {eggData.name}
-                  </div>
-                )}>
+                <Card style={{display:'flex',  justifyContent:'center', alignItems:'center',}}>
                   <div>
                     <ReactSVG
                       beforeInjection={(svg) => {
@@ -2192,12 +2189,12 @@ function App(props) {
                         gElement.setAttribute('fill', eggData.colorHex)
                       }}
                       src={eggData.image}
-                      style={{maxWidth:300}}
+                      style={{maxWidth:200}}
                     />
                   </div>
-                  <div>{eggData.description}</div>
+                  <div style={{display:'flex',  justifyContent:'center', alignItems:'center',}}>{eggData.description}</div>
                 </Card>
-                <div>
+                <div style={{display:'flex',  justifyContent:'center', alignItems:'center',}}>
                   <List
                     dataSource={eggData.attributes}
                     renderItem={(attribute) => {
